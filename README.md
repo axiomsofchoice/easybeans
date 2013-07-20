@@ -1,7 +1,35 @@
 EasyBeans
 =========
 
-Pay for you office coffee capsules with PayPal - built for HACKED.io
+Pay for you office coffee capsules with PayPal - built for [HACKED.io](http://hacked.io/almanac/paypal/)
+
+#Application Architecture
+
+At the coffee station there will be several buckets or boxes with capsules in them
+for each of the different flavours of coffee available. Each bucket will have an
+NFC tag beside it and all the user needs to do to purchase a capsule is pass their
+device over the tag and pick out
+
+In the same way that conventional office coffee systems are based on honour codes
+this application also assumes users will be honest about the capsules they take.
+This is because the main aim of this app was to remove the need to have a cash box
+around the office all the time.
+
+To denote the various flavours available we store the following URIs on the tags:
+
+    http://nfc.danhagon.me.uk/[flavour]
+
+#Technical Requirements
+
+This app will aim to use the most common type of NFC tag with NDEF data which is the
+most easily applied format for the Android SDK. Specifically
+it was tested using NFC Forum Type 2 Tags (NTAG203) with 137 bytes of data available.
+In testing the tags were not locked but in a practical application this might be
+necessary.
+
+[PayPal SDK](https://developer.paypal.com/webapps/developer/docs/integration/mobile/android-integration-guide/)
+
+#License
 
 Copyright (c) 2013 Dan Hagon.
 
