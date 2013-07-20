@@ -1,7 +1,7 @@
 EasyBeans
 =========
 
-
+Pay for you office coffee capsules with PayPal - built for HACKED.io
 
 Copyright (c) 2013 Dan Hagon.
 
