@@ -1,6 +1,14 @@
-package uk.me.danhagon.easybeans;
+package com.danhagon.easybeans;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+
+import org.json.JSONException;
+
+import com.paypal.android.sdk.payments.PayPalPayment;
+import com.paypal.android.sdk.payments.PayPalService;
+import com.paypal.android.sdk.payments.PaymentActivity;
+import com.paypal.android.sdk.payments.PaymentConfirmation;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -8,6 +16,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
 import android.nfc.NdefMessage;
@@ -57,6 +66,16 @@ public class MainActivity extends Activity {
 		intentFiltersArray = new IntentFilter[] {ndef, };
 		
 		techListsArray = new String[][] { new String[] { NfcF.class.getName() } };
+		
+		Intent intent = new Intent(this, PayPalService.class);
+
+	     // live: don't put any environment extra
+	     // sandbox: use PaymentActivity.ENVIRONMENT_SANDBOX
+	     intent.putExtra(PaymentActivity.EXTRA_PAYPAL_ENVIRONMENT, PaymentActivity.ENVIRONMENT_SANDBOX);
+
+	     intent.putExtra(PaymentActivity.EXTRA_CLIENT_ID, "AXCRQxAGj3cFR3u8rIlJWS2I5ST7vv0HFVwBX3wjH4vMuEFMQ2NKRiqFe-JC");
+
+	     startService(intent);		
     }
 
 
@@ -68,6 +87,12 @@ public class MainActivity extends Activity {
     }
 
 
+    @Override
+    public void onDestroy() {
+        stopService(new Intent(this, PayPalService.class));
+        super.onDestroy();
+    }    
+    
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -82,9 +107,9 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onPause() {
+		super.onPause();		
 		// Stop Foreground Dispatch
 		mNfcAdapter.disableForegroundDispatch(this) ;
-		super.onPause();		
 	}
 	
 	@Override
@@ -92,6 +117,31 @@ public class MainActivity extends Activity {
 		handleNFC(intent) ;
 	}
 
+	
+	@Override
+	 protected void onActivityResult (int requestCode, int resultCode, Intent data) {
+	     if (resultCode == Activity.RESULT_OK) {
+	         PaymentConfirmation confirm = data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
+	         if (confirm != null) {
+	             try {
+	                 Log.i("paymentExample", confirm.toJSONObject().toString(4));
+
+	                 // TODO: send 'confirm' to your server for verification.
+	                 // see https://developer.paypal.com/webapps/developer/docs/integration/mobile/verify-mobile-payment/
+	                 // for more details.
+
+	             } catch (JSONException e) {
+	                 Log.e("paymentExample", "an extremely unlikely failure occurred: ", e);
+	             }
+	         }
+	     }
+	     else if (resultCode == Activity.RESULT_CANCELED) {
+	         Log.i("paymentExample", "The user canceled.");
+	     }
+	     else if (resultCode == PaymentActivity.RESULT_PAYMENT_INVALID) {
+	         Log.i("paymentExample", "An invalid payment was submitted. Please see the docs.");
+	     }
+	 }	
 
 	/**
 	 * Receive and handle NFC Intent.
@@ -122,14 +172,44 @@ public class MainActivity extends Activity {
 						e.printStackTrace();
 					}
 					final String uri = uriTemp ;
+					
+					// Notify user of choice
 		            MainActivity.this.runOnUiThread(new Runnable() {
 		            	public void run() {
 		                	tv1.setText(uri) ;
 		            	}
 		            }) ;
+		            
+		            // Authorise payment
+		            handlePayment(uri) ;
 	            }
 		    }).start();		
 		}
 	}
-    
+	
+	/**
+	 * Handles payment for the capsule using PayPal
+	 */
+	public void handlePayment(String flavour) {
+		 // A coffee capsule costs 2 pounds
+	     PayPalPayment payment = new PayPalPayment(new BigDecimal("0.20"), "USD", flavour);
+
+	     Intent intent = new Intent(this, PaymentActivity.class);
+
+	     // comment this line out for live or set to PaymentActivity.ENVIRONMENT_SANDBOX for sandbox
+	     intent.putExtra(PaymentActivity.EXTRA_PAYPAL_ENVIRONMENT, PaymentActivity.ENVIRONMENT_NO_NETWORK);
+
+	     // it's important to repeat the clientId here so that the SDK has it if Android restarts your
+	     // app midway through the payment UI flow.
+	     intent.putExtra(PaymentActivity.EXTRA_CLIENT_ID, "AXCRQxAGj3cFR3u8rIlJWS2I5ST7vv0HFVwBX3wjH4vMuEFMQ2NKRiqFe-JC");
+
+	     // Provide a payerId that uniquely identifies a user within the scope of your system,
+	     // such as an email address or user ID.
+	     intent.putExtra(PaymentActivity.EXTRA_PAYER_ID, "<axiomsofchoice@nfc.danhagon.me.uk>");
+
+	     intent.putExtra(PaymentActivity.EXTRA_RECEIVER_EMAIL, "axiomsofchoice-facilitator@gmail.com");
+	     intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payment);
+
+	     startActivityForResult(intent, 0);
+	 }
 }
