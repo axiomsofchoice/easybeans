@@ -19,13 +19,19 @@ To denote the various flavours available we store the following URIs on the tags
 
     http://nfc.danhagon.me.uk/[flavour]
 
+##Usability
+
+To ensure that once launched our app won't be launched again once the tag is touched again
+we use [Foreground Dispatch](https://developer.android.com/guide/topics/connectivity/nfc/advanced-nfc.html#foreground-dispatch)
+
 #Technical Requirements
 
 This app will aim to use the most common type of NFC tag with NDEF data which is the
 most easily applied format for the Android SDK. Specifically
 it was tested using NFC Forum Type 2 Tags (NTAG203) with 137 bytes of data available.
 In testing the tags were not locked but in a practical application this might be
-necessary.
+necessary. Testing was done using a Nexus 7 with preconfigured tags, written using
+the [NXP Tagwriter App](https://play.google.com/store/apps/details?id=com.nxp.nfc.tagwriter&hl=en)
 
 [PayPal SDK](https://developer.paypal.com/webapps/developer/docs/integration/mobile/android-integration-guide/)
 
