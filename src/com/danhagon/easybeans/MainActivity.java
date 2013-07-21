@@ -16,6 +16,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
@@ -71,7 +72,7 @@ public class MainActivity extends Activity {
 
 	     // live: don't put any environment extra
 	     // sandbox: use PaymentActivity.ENVIRONMENT_SANDBOX
-	     intent.putExtra(PaymentActivity.EXTRA_PAYPAL_ENVIRONMENT, PaymentActivity.ENVIRONMENT_SANDBOX);
+	     intent.putExtra(PaymentActivity.EXTRA_PAYPAL_ENVIRONMENT, PaymentActivity.ENVIRONMENT_NO_NETWORK);
 
 	     intent.putExtra(PaymentActivity.EXTRA_CLIENT_ID, "AXCRQxAGj3cFR3u8rIlJWS2I5ST7vv0HFVwBX3wjH4vMuEFMQ2NKRiqFe-JC");
 
@@ -171,12 +172,30 @@ public class MainActivity extends Activity {
 					} catch (UnsupportedEncodingException e) {
 						e.printStackTrace();
 					}
-					final String uri = uriTemp ;
+					final String uri = "http://nfc" + uriTemp ; // Hack!
 					
 					// Notify user of choice
 		            MainActivity.this.runOnUiThread(new Runnable() {
 		            	public void run() {
 		                	tv1.setText(uri) ;
+		                	if(uri.equals("http://nfc.danhagon.com/red")) {
+		                		tv1.setBackgroundColor(Color.RED) ;
+		                	}
+		                	if(uri.equals("http://nfc.danhagon.com/yellow")) {
+		                		tv1.setBackgroundColor(Color.YELLOW) ;
+		                	}
+		                	if(uri.equals("http://nfc.danhagon.com/blue")) {
+		                		tv1.setBackgroundColor(Color.BLUE) ;
+		                	}
+		                	if(uri.equals("http://nfc.danhagon.com/green")) {
+		                		tv1.setBackgroundColor(Color.GREEN) ;
+		                	}
+		                	if(uri.equals("http://nfc.danhagon.com/white")) {
+		                		tv1.setBackgroundColor(Color.WHITE) ;
+		                	}
+		                	if(uri.equals("http://nfc.danhagon.com/black")) {
+		                		tv1.setBackgroundColor(Color.BLACK) ;
+		                	}
 		            	}
 		            }) ;
 		            
